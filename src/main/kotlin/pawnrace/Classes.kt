@@ -1,8 +1,17 @@
 package pawnrace
 
-enum class Piece { B, W, N }
+enum class Piece { B, W, N;
+    fun opposite() =
+        when (this) {
+            B -> W
+            W -> B
+            else -> N
+        }
+}
 
 enum class MoveType { PEACEFUL, CAPTURE, EN_PASSANT }
+
+class Game()
 
 data class Move(
     val piece: Piece,
@@ -34,17 +43,19 @@ class Board(val whiteGap: Rank, val blackGap: Rank) {
         }
     }
 
-    fun pieceAt(pos: Position): Piece? =
+    fun copy(): Board = this
+
+    fun pieceAt(pos: Position): Piece =
         when (board[pos.rank.rank][pos.file.file]) {
             Piece.B -> Piece.B
             Piece.W -> Piece.W
-            else -> null
+            else -> Piece.N
         }
 
     fun positionsOf(piece: Piece): List<Position> {
         val out: MutableList<Position> = mutableListOf()
-        board.forEachIndexed { r, e ->
-            e.forEachIndexed { f, ee ->
+        board.forEachIndexed { f, e ->
+            e.forEachIndexed { r, ee ->
                 if (ee == piece) {
                     out.add(
                         Position(
@@ -56,6 +67,101 @@ class Board(val whiteGap: Rank, val blackGap: Rank) {
             }
         }
         return out.toList()
+    }
+
+    fun isValidMove(move: Move, lastMove: Move? = null): Boolean {
+        if ( // Not a piece at from
+            pieceAt(move.from) == Piece.N ||
+            // Moving to outside the board
+            move.to.rank.rank !in 0..7 ||
+            move.to.file.file !in 0..7 ||
+            // Moving to a square that already has the same piece
+            pieceAt(move.to) == pieceAt(move.from) ||
+            // Peaceful move attacking
+            (
+                move.type == MoveType.PEACEFUL &&
+                    pieceAt(move.to) == pieceAt(move.from).opposite()
+                )
+        ) {
+            return false
+        }
+        // Peaceful
+        if (move.type == MoveType.PEACEFUL) {
+            if (pieceAt(move.from) == Piece.B &&
+                pieceAt(move.to) == Piece.N &&
+                move.to == move.from.move(-1, 0)
+            ) {
+                return true
+            }
+            if (pieceAt(move.from) == Piece.W &&
+                pieceAt(move.to) == Piece.N &&
+                move.to == move.from.move(1, 0)
+            ) {
+                return true
+            }
+        }
+        // Attack
+        if (move.type == MoveType.CAPTURE ||
+            move.type == MoveType.EN_PASSANT
+        ) {
+            if (pieceAt(move.from) == Piece.B &&
+                (
+                    move.to == move.from.move(-1, -1) ||
+                        move.to == move.from.move(-1, 1)
+                    ) &&
+                (
+                    pieceAt(move.from) == pieceAt(move.to).opposite() ||
+                        (
+                            pieceAt(move.to.move(1, 0)) == Piece.W &&
+                                (lastMove?.to == lastMove?.from?.move(2, 0))
+                            )
+                    )
+            ) {
+                return true
+            }
+            if (pieceAt(move.from) == Piece.W &&
+                (
+                    move.to == move.from.move(1, -1) ||
+                        move.to == move.from.move(1, 1)
+                    ) &&
+                (
+                    pieceAt(move.from) == pieceAt(move.to).opposite() ||
+                        (
+                            pieceAt(move.to.move(-1, 0)) == Piece.B &&
+                                (lastMove?.to == lastMove?.from?.move(-2, 0))
+                            )
+                    )
+            ) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun move(m: Move): Board {
+        val b = this.copy()
+        if (isValidMove(m)) {
+            b.board[m.to.rank.rank][m.to.file.file] = b.board[m.from.rank.rank][m.from.file.file]
+            b.board[m.from.rank.rank][m.from.file.file] = Piece.N
+        }
+        return b
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder("   ABCDEFGH   \n\n")
+        for (y in 0..7) {
+            sb.append("${y + 1}  ")
+            for (x in 0..7) {
+                if (board[x][y] == Piece.N) {
+                    sb.append(".")
+                } else {
+                    sb.append(board[x][y])
+                }
+            }
+            sb.append("  ${y + 1}\n")
+        }
+        sb.append("\n   ABCDEFGH   \n")
+        return sb.toString()
     }
 }
 
@@ -94,4 +200,6 @@ data class Position(val pos: String) {
     override fun toString(): String {
         return "$file$rank"
     }
+
+    fun move(x: Int, y: Int): Position = Position("${File(file.file + x)}${Rank(rank.rank + y)}")
 }
