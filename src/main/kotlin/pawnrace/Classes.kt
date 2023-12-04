@@ -11,7 +11,33 @@ enum class Piece { B, W, N;
 
 enum class MoveType { PEACEFUL, CAPTURE, EN_PASSANT }
 
-class Game()
+class MutableStack<T>(var list: MutableList<T>) {
+    fun isEmpty(): Boolean = list.size == 0
+
+    fun pop(): T {
+        val temp = list.last()
+        list.remove(temp)
+        return temp
+    }
+
+    fun push(elem: T) {
+        list.add(elem)
+    }
+
+    fun peep(): T = list.last()
+}
+
+class Game() {
+    var board: Board = Board(Rank(0), Rank(0))
+    var player: Piece = Piece.N
+    var lastMove: Move? = null
+    var moves: MutableStack<Move> = MutableStack(mutableListOf())
+    constructor(board: Board, player: Piece, lastMove: Move? = null) : this() {
+        this.board = board
+        this.player = player
+        this.lastMove = lastMove
+    }
+}
 
 data class Move(
     val piece: Piece,
@@ -139,12 +165,11 @@ class Board(val whiteGap: Rank, val blackGap: Rank) {
     }
 
     fun move(m: Move): Board {
-        val b = this.copy()
         if (isValidMove(m)) {
-            b.board[m.to.rank.rank][m.to.file.file] = b.board[m.from.rank.rank][m.from.file.file]
-            b.board[m.from.rank.rank][m.from.file.file] = Piece.N
+            board[m.to.rank.rank][m.to.file.file] = board[m.from.rank.rank][m.from.file.file]
+            board[m.from.rank.rank][m.from.file.file] = Piece.N
         }
-        return b
+        return this
     }
 
     override fun toString(): String {
