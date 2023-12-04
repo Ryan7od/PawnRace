@@ -20,22 +20,34 @@ class MutableStack<T>(var list: MutableList<T>) {
         return temp
     }
 
-    fun push(elem: T) {
+    fun push(elem: T): MutableStack<T> {
         list.add(elem)
+        return this
     }
 
     fun peep(): T = list.last()
 }
 
-class Game() {
-    var board: Board = Board(Rank(0), Rank(0))
-    var player: Piece = Piece.N
-    var lastMove: Move? = null
-    var moves: MutableStack<Move> = MutableStack(mutableListOf())
-    constructor(board: Board, player: Piece, lastMove: Move? = null) : this() {
-        this.board = board
-        this.player = player
-        this.lastMove = lastMove
+class Game(var board: Board, var player: Piece, val moves: MutableStack<Move> = MutableStack(mutableListOf())){
+    fun applyMove(move: Move) {
+        board.move(move)
+        player = player.opposite()
+        moves.push(move)
+    }
+    fun unnaplyMove() {
+        val lastMove = moves.pop()
+        board.board[lastMove.from.rank.rank][lastMove.from.file.file] = lastMove.piece
+        if (lastMove.type == MoveType.PEACEFUL)
+            board.board[lastMove.to.rank.rank][lastMove.to.file.file] = Piece.N
+        if(lastMove.type == MoveType.CAPTURE)
+            board.board[lastMove.to.rank.rank][lastMove.to.file.file] = lastMove.piece.opposite()
+        else{
+            if (lastMove.piece == Piece.B)
+                board.board[lastMove.to.rank.rank+1][lastMove.to.file.file] = Piece.W
+            else
+                board.board[lastMove.to.rank.rank-1][lastMove.to.file.file] = Piece.B
+        }
+
     }
 }
 
@@ -54,15 +66,15 @@ data class Move(
     }
 }
 
-class Board(val whiteGap: Rank, val blackGap: Rank) {
-    private var board: Array<Array<Piece>> = Array(8) { i ->
+class Board(val whiteGap: File, val blackGap: File) {
+    var board: Array<Array<Piece>> = Array(8) { i ->
         if (i == 1) {
             Array(8) { j ->
-                if (j == whiteGap.rank) Piece.N else Piece.W
+                if (j == whiteGap.file) Piece.N else Piece.W
             }
         } else if (i == 6) {
             Array(8) { j ->
-                if (j == blackGap.rank) Piece.N else Piece.B
+                if (j == blackGap.file) Piece.N else Piece.B
             }
         } else {
             Array(8) { j -> Piece.N }
@@ -80,8 +92,8 @@ class Board(val whiteGap: Rank, val blackGap: Rank) {
 
     fun positionsOf(piece: Piece): List<Position> {
         val out: MutableList<Position> = mutableListOf()
-        board.forEachIndexed { f, e ->
-            e.forEachIndexed { r, ee ->
+        board.forEachIndexed { r, e ->
+            e.forEachIndexed { f, ee ->
                 if (ee == piece) {
                     out.add(
                         Position(
@@ -164,12 +176,17 @@ class Board(val whiteGap: Rank, val blackGap: Rank) {
         return false
     }
 
-    fun move(m: Move): Board {
+    fun move(m: Move) {
         if (isValidMove(m)) {
             board[m.to.rank.rank][m.to.file.file] = board[m.from.rank.rank][m.from.file.file]
             board[m.from.rank.rank][m.from.file.file] = Piece.N
+            if(m.type == MoveType.EN_PASSANT){
+                if (m.piece == Piece.B)
+                    board[m.to.rank.rank+1][m.to.file.file] = Piece.N
+                else
+                    board[m.to.rank.rank-1][m.to.file.file] = Piece.N
+            }
         }
-        return this
     }
 
     override fun toString(): String {
