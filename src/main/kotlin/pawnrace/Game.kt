@@ -41,15 +41,18 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         val list: MutableList<Move> = mutableListOf()
         board.positionsOf(piece).forEach {
             if (it.rank.rank + forward in 0..7 &&
-                board.pieceAt(it.move(forward, 0)) == Piece.N) {
+                board.pieceAt(it.move(forward, 0)) == Piece.N
+            ) {
                 list.add(Move(piece, it, it.move(forward, 0), MoveType.PEACEFUL))
             }
             if (it.file.file < 7 &&
-                board.pieceAt(it.move(forward, 1)) == piece.opposite()) {
+                board.pieceAt(it.move(forward, 1)) == piece.opposite()
+            ) {
                 list.add(Move(piece, it, it.move(forward, 1), MoveType.CAPTURE))
             }
             if (it.file.file > 0 &&
-                board.pieceAt(it.move(forward, -1)) == piece.opposite()) {
+                board.pieceAt(it.move(forward, -1)) == piece.opposite()
+            ) {
                 list.add(Move(piece, it, it.move(forward, -1), MoveType.CAPTURE))
             }
             if (lastMove != null) {
