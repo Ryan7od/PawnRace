@@ -15,6 +15,7 @@ class PawnRace {
         // You should call your code from within here
         // Step 1: If you are the black player, you should send a string containing the gaps
         // It should be of the form "wb" with the white gap first and then the black gap: i.e. "AH"
+        val player: Piece = parseColour(colour)
         output.println("AH")
 
         // Regardless of your colour, you should now receive the gaps verified by the autorunner

@@ -2,13 +2,11 @@ package pawnrace
 
 import kotlin.math.abs
 
-class Game(var board: Board, var player: Piece, val moves: MutableStack<Move> = MutableStack(mutableListOf())) {
-    fun applyMove(move: Move) {
-        board.move(move)
-        player = player.opposite()
-        moves.push(move)
-    }
-    fun unnaplyMove() {
+class Game(var board: Board, var player: Piece, val moves: MutableStack = MutableStack(mutableListOf())) {
+    fun applyMove(move: Move): Game =
+        Game(board.copy(), player, moves.copy())
+
+    fun unapplyMove() {
         val lastMove = moves.pop()
         board.board[lastMove.from.rank.rank][lastMove.from.file.file] = lastMove.piece
         if (lastMove.type == MoveType.PEACEFUL) {
@@ -120,26 +118,11 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack<Move> = 
             return null
         }
         val pos2 = Position(file + rank.toString())
-        if (san.length == 2) {
-            move = Move(piece, pos!!, pos2, MoveType.PEACEFUL)
+        move = if (san.length == 2) {
+            Move(piece, pos!!, pos2, MoveType.PEACEFUL)
         } else {
-            move = Move(piece, pos!!, pos2, type)
+            Move(piece, pos!!, pos2, type)
         }
         return move
-    }
-}
-
-data class Move(
-    val piece: Piece,
-    val from: Position,
-    val to: Position,
-    val type: MoveType,
-) {
-    override fun toString(): String {
-        return if (type == MoveType.PEACEFUL) {
-            to.toString()
-        } else {
-            "${from.file}x$to"
-        }
     }
 }

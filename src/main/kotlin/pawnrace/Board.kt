@@ -1,21 +1,44 @@
 package pawnrace
 
-class Board(val whiteGap: File, val blackGap: File) {
-    var board: Array<Array<Piece>> = Array(8) { i ->
-        if (i == 1) {
-            Array(8) { j ->
-                if (j == whiteGap.file) Piece.N else Piece.W
+class Board {
+    var board: Array<Array<Piece>>
+
+    constructor(whiteGap: File, blackGap: File) {
+        board = Array(8) { i ->
+            when (i) {
+                1 -> {
+                    Array(8) { j ->
+                        if (j == whiteGap.file) Piece.N else Piece.W
+                    }
+                }
+                6 -> {
+                    Array(8) { j ->
+                        if (j == blackGap.file) Piece.N else Piece.B
+                    }
+                }
+                else -> {
+                    Array(8) { Piece.N }
+                }
             }
-        } else if (i == 6) {
-            Array(8) { j ->
-                if (j == blackGap.file) Piece.N else Piece.B
-            }
-        } else {
-            Array(8) { j -> Piece.N }
         }
     }
 
-    fun copy(): Board = this
+    constructor(b: Array<Array<Piece>>) {
+        board = b
+    }
+
+    fun copy(): Board {
+        val copiedArray = Array(board.size) { Array(board[0].size) { Piece.N } }
+
+        // Iterate through the original array and copy its contents
+        for (i in board.indices) {
+            for (j in board[i].indices) {
+                copiedArray[i][j] = board[i][j]
+            }
+        }
+
+        return Board(copiedArray)
+    }
 
     fun pieceAt(pos: Position): Piece =
         when (board[pos.rank.rank][pos.file.file]) {
