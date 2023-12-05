@@ -3,11 +3,15 @@ package pawnrace
 import kotlin.math.abs
 
 class Game(var board: Board, var player: Piece, val moves: MutableStack = MutableStack(mutableListOf())) {
-    fun applyMove(move: Move): Game =
-        Game(board.copy(), player, moves.copy())
+    fun applyMove(move: Move): Game {
+        val newBoard = board.copy()
+        newBoard.move(move)
+        return Game(newBoard, player.opposite(), moves.copy().push(move))
+    }
 
     fun unapplyMove() {
         val lastMove = moves.pop()
+        player = player.opposite()
         board.board[lastMove.from.rank.rank][lastMove.from.file.file] = lastMove.piece
         if (lastMove.type == MoveType.PEACEFUL) {
             board.board[lastMove.to.rank.rank][lastMove.to.file.file] = Piece.N
@@ -36,13 +40,16 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         }
         val list: MutableList<Move> = mutableListOf()
         board.positionsOf(piece).forEach {
-            if (board.pieceAt(it.move(forward, 0)) == Piece.N) {
+            if (it.rank.rank + forward in 0..7 &&
+                board.pieceAt(it.move(forward, 0)) == Piece.N) {
                 list.add(Move(piece, it, it.move(forward, 0), MoveType.PEACEFUL))
             }
-            if (it.file.file < 7 && board.pieceAt(it.move(forward, 1)) == piece.opposite()) {
+            if (it.file.file < 7 &&
+                board.pieceAt(it.move(forward, 1)) == piece.opposite()) {
                 list.add(Move(piece, it, it.move(forward, 1), MoveType.CAPTURE))
             }
-            if (it.file.file > 0 && board.pieceAt(it.move(forward, -1)) == piece.opposite()) {
+            if (it.file.file > 0 &&
+                board.pieceAt(it.move(forward, -1)) == piece.opposite()) {
                 list.add(Move(piece, it, it.move(forward, -1), MoveType.CAPTURE))
             }
             if (lastMove != null) {
@@ -55,7 +62,7 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
                     list.add(Move(piece, it, it.move(forward, 1), MoveType.EN_PASSANT))
                 }
                 if (it.file.file > 0 &&
-                    it.rank.rank < 6 && it.rank.rank > 1 &&
+                    it.rank.rank in 1..6 &&
                     board.pieceAt(it.move(0, -1)) == piece.opposite() &&
                     lastMove.to == it.move(0, -1) &&
                     lastMove.from == it.move(2 * forward, -1)
@@ -89,7 +96,7 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
     fun parseMove(san: String): Move? {
         val move: Move
         val file = san[0].uppercase()
-        val rank = san.last().digitToInt()
+        val rank = san.last().digitToInt() - 1
         var pos: Position? = null
         var piece: Piece = Piece.N
         var type = MoveType.CAPTURE
@@ -117,7 +124,7 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         if (pos == null) {
             return null
         }
-        val pos2 = Position(file + rank.toString())
+        val pos2 = Position(file + (rank + 1).toString())
         move = if (san.length == 2) {
             Move(piece, pos!!, pos2, MoveType.PEACEFUL)
         } else {
@@ -125,4 +132,14 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         }
         return move
     }
+
+    override fun toString() = board.toString()
+}
+
+fun main() {
+    var game = Game(Board(File(4), File(4)), Piece.W)
+    println(game)
+    game = game.applyMove(game.parseMove("b3") ?: Move(Piece.W, Position("C2"), Position("C3"), MoveType.PEACEFUL))
+    println(game)
+    println(game.parseMove("d3"))
 }

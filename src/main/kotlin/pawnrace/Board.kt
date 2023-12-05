@@ -150,6 +150,8 @@ class Board {
                     board[m.to.rank.rank - 1][m.to.file.file] = Piece.N
                 }
             }
+        } else {
+            println("Not valid")
         }
     }
 
@@ -182,10 +184,10 @@ class Board {
         for (y in 0..7) {
             sb.append("${y + 1}  ")
             for (x in 0..7) {
-                if (board[x][y] == Piece.N) {
+                if (board[y][x] == Piece.N) {
                     sb.append(".")
                 } else {
-                    sb.append(board[x][y])
+                    sb.append(board[y][x])
                 }
             }
             sb.append("  ${y + 1}\n")

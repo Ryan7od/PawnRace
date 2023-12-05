@@ -1,6 +1,6 @@
 package pawnrace
 
-data class Move(
+class Move(
     val piece: Piece,
     val from: Position,
     val to: Position,
@@ -17,6 +17,3 @@ data class Move(
     fun copy() = Move(piece, from, to, type)
 }
 
-fun main() {
-    println("Hello")
-}
