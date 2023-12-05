@@ -2,34 +2,6 @@ package pawnrace
 
 import kotlin.math.abs
 
-enum class Piece { B, W, N;
-    fun opposite() =
-        when (this) {
-            B -> W
-            W -> B
-            else -> N
-        }
-}
-
-enum class MoveType { PEACEFUL, CAPTURE, EN_PASSANT }
-
-class MutableStack<T>(var list: MutableList<T>) {
-    fun isEmpty(): Boolean = list.size == 0
-
-    fun pop(): T {
-        val temp = list.last()
-        list.remove(temp)
-        return temp
-    }
-
-    fun push(elem: T): MutableStack<T> {
-        list.add(elem)
-        return this
-    }
-
-    fun peek(): T = list.last()
-}
-
 class Game(var board: Board, var player: Piece, val moves: MutableStack<Move> = MutableStack(mutableListOf())) {
     fun applyMove(move: Move) {
         board.move(move)
@@ -342,45 +314,4 @@ class Board(val whiteGap: File, val blackGap: File) {
         sb.append("\n   ABCDEFGH   \n")
         return sb.toString()
     }
-}
-
-class Player(val piece: Piece, val opponent: Player? = null)
-
-class File(val file: Int) {
-    override fun toString(): String {
-        return (file + 'a'.code).toChar().uppercase()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return other is File && other.file == file
-    }
-
-    override fun hashCode(): Int {
-        return file
-    }
-}
-
-class Rank(val rank: Int) {
-    override fun toString(): String {
-        return (rank + 1).toString()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return other is Rank && other.rank == rank
-    }
-
-    override fun hashCode(): Int {
-        return rank
-    }
-}
-
-data class Position(val pos: String) {
-    var file = File(pos.lowercase()[0].code - 'a'.code)
-    var rank = Rank(pos[1].digitToInt())
-
-    override fun toString(): String {
-        return "$file$rank"
-    }
-
-    fun move(x: Int, y: Int): Position = Position("${File(file.file + x)}${Rank(rank.rank + y)}")
 }
