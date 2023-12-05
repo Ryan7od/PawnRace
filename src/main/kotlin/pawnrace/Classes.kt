@@ -233,13 +233,19 @@ class Board(val whiteGap: File, val blackGap: File) {
         if (move.type == MoveType.PEACEFUL) {
             if (pieceAt(move.from) == Piece.B &&
                 pieceAt(move.to) == Piece.N &&
-                move.to == move.from.move(-1, 0)
+                (
+                    move.to == move.from.move(-1, 0) ||
+                        move.to == move.from.move(-2, 0)
+                    )
             ) {
                 return true
             }
             if (pieceAt(move.from) == Piece.W &&
                 pieceAt(move.to) == Piece.N &&
-                move.to == move.from.move(1, 0)
+                (
+                    move.to == move.from.move(1, 0) ||
+                        move.to == move.from.move(2, 0)
+                    )
             ) {
                 return true
             }
@@ -296,6 +302,30 @@ class Board(val whiteGap: File, val blackGap: File) {
         }
     }
 
+    fun isPassedPawn(pos: Position, player: Piece): Boolean {
+        val forward: (Int, Int) -> Boolean = when (player) {
+            Piece.B -> {
+                    x, y ->
+                x < y
+            }
+            else -> {
+                    x, y ->
+                x > y
+            }
+        }
+        if (pieceAt(pos) == player) {
+            positionsOf(player.opposite()).forEach {
+                if (it.file.file in pos.file.file - 1..pos.file.file + 1 &&
+                    forward(it.rank.rank, pos.rank.rank)
+                ) {
+                    return false
+                }
+            }
+            return true
+        }
+        return false
+    }
+
     override fun toString(): String {
         val sb = StringBuilder("   ABCDEFGH   \n\n")
         for (y in 0..7) {
@@ -313,6 +343,8 @@ class Board(val whiteGap: File, val blackGap: File) {
         return sb.toString()
     }
 }
+
+class Player(val piece: Piece, val opponent: Player? = null)
 
 class File(val file: Int) {
     override fun toString(): String {

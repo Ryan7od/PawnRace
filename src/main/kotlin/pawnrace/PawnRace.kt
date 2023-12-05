@@ -15,15 +15,18 @@ class PawnRace {
         // You should call your code from within here
         // Step 1: If you are the black player, you should send a string containing the gaps
         // It should be of the form "wb" with the white gap first and then the black gap: i.e. "AH"
-        // TODO: Send gaps with output.println()
+        output.println("AH")
 
         // Regardless of your colour, you should now receive the gaps verified by the autorunner
         // (or by the human if you are using your own main function below), these are provided
         // in the same form as above ("wb"), for example: "AH"
-        // TODO: receive the confirmed gaps with input.readLine()
+        val gaps = input.readLine()
 
         // Now you may construct your initial board
-        // TODO: Initialise the board state
+        val board = Board(
+            File(gaps.lowercase()[0].code - 'a'.code),
+            File(gaps.lowercase()[1].code - 'a'.code),
+        )
 
         // If you are the white player, you are now allowed to move
         // you may send your move, once you have decided what it will be, with output.println(move)
