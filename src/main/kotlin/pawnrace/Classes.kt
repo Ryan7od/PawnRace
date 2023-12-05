@@ -124,7 +124,7 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack<Move> = 
         var piece: Piece = Piece.N
         var type = MoveType.CAPTURE
         board.positionsOf(Piece.B).forEach {
-            if (it.file.toString() == file){
+            if (it.file.toString() == file) {
                 if (abs(it.rank.rank - rank) <= 1) {
                     pos = it
                     piece = Piece.B
@@ -132,7 +132,7 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack<Move> = 
             }
         }
         board.positionsOf(Piece.W).forEach {
-            if (it.file.toString() == file){
+            if (it.file.toString() == file) {
                 if (abs(it.rank.rank - rank) == 1) {
                     pos = it
                     piece = Piece.W
@@ -144,7 +144,7 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack<Move> = 
                 }
             }
         }
-        if(pos == null) {
+        if (pos == null) {
             return null
         }
         val pos2 = Position(file + rank.toString())
