@@ -77,6 +77,31 @@ fun createTreeP(
     return tree
 }
 
+fun createTreePtr(
+    executor: ExecutorService,
+    player: Piece,
+    depth: Int,
+    gm: Game,
+    m: Move? = null,
+    tree: MoveTree = MoveTree(gm, m)
+): MoveTree {
+    if (depth == 0) {
+        return tree
+    }
+
+    // val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+
+    gm.moves(player).forEach {
+        executor.submit {
+            val newGame = gm.applyMove(it)
+            val newTree = MoveTree(newGame, m)
+            tree.add(createTreeTR(player.opposite(), depth - 1, newGame, it, newTree))
+        }
+    }
+
+    return tree
+}
+
 fun createTree(player: Piece, depth: Int, gm: Game, m: Move? = null): MoveTree {
     val tree = MoveTree(gm, m)
 
