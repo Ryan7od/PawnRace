@@ -3,6 +3,8 @@ package pawnrace
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.system.measureTimeMillis
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 fun minimaxP(
     executor: ExecutorService,
@@ -90,15 +92,21 @@ fun createTree(player: Piece, depth: Int, gm: Game, m: Move? = null): MoveTree {
 }
 
 fun main() {
+    val startTime = System.currentTimeMillis()
+    val tree: MoveTree
+
     val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
-    val timeP = measureTimeMillis {
-        createTreeP(executor, Piece.W, 2, Game(Board(File(0), File(7)), Piece.W))
-    }
-    val time = measureTimeMillis {
-        createTree(Piece.W, 5, Game(Board(File(0), File(7)), Piece.W))
-    }
 
+    tree = createTreeP(executor, Piece.W, 8, Game(Board(File(0), File(7)), Piece.W))
     executor.shutdown()
+    if(!executor.awaitTermination(5, TimeUnit.SECONDS)){
+        println("timeout")
+    }
 
-    println("Parallell time: $timeP | Iterative Time: $time")
+
+//    tree = createTree(Piece.W, 7, Game(Board(File(0), File(7)), Piece.W))
+
+    println(tree.size())
+    println("Time: ${System.currentTimeMillis() - startTime}")
+
 }

@@ -45,12 +45,14 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
             ) {
                 list.add(Move(piece, it, it.move(forward, 0), MoveType.PEACEFUL))
             }
-            if (it.file.file < 7 &&
+            if (it.rank.rank + forward in 0..7 &&
+                it.file.file < 7 &&
                 board.pieceAt(it.move(forward, 1)) == piece.opposite()
             ) {
                 list.add(Move(piece, it, it.move(forward, 1), MoveType.CAPTURE))
             }
-            if (it.file.file > 0 &&
+            if (it.rank.rank + forward in 0..7 &&
+                it.file.file > 0 &&
                 board.pieceAt(it.move(forward, -1)) == piece.opposite()
             ) {
                 list.add(Move(piece, it, it.move(forward, -1), MoveType.CAPTURE))
@@ -141,8 +143,14 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
 
 fun main() {
     var game = Game(Board(File(4), File(4)), Piece.W)
+    game.moves(Piece.W).forEach {
+        println(it)
+    }
     println(game)
     game = game.applyMove(game.parseMove("b3") ?: Move(Piece.W, Position("C2"), Position("C3"), MoveType.PEACEFUL))
     println(game)
     println(game.parseMove("d3"))
+    game.moves(Piece.W).forEach {
+        println(it)
+    }
 }
