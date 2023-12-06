@@ -109,16 +109,17 @@ fun main() {
     val startTime = System.currentTimeMillis()
     val tree: MoveTree
 
-    val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+//    val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+//
+//    tree = createTreeP(executor, Piece.W, 8, Game(Board(File(0), File(7)), Piece.W))
+//    executor.shutdown()
+//    if(!executor.awaitTermination(5, TimeUnit.SECONDS)){
+//        println("timeout")
+//    }
 
-    tree = createTreeP(executor, Piece.W, 8, Game(Board(File(0), File(7)), Piece.W))
-    executor.shutdown()
-    if(!executor.awaitTermination(5, TimeUnit.SECONDS)){
-        println("timeout")
-    }
 
-
-//    tree = createTree(Piece.W, 7, Game(Board(File(0), File(7)), Piece.W))
+    tree = createTree(Piece.W, 7, Game(Board(File(0), File(7)), Piece.W))
+//    tree = createTreeTR(Piece.W, 7, Game(Board(File(0), File(7)), Piece.W))
 
     println(tree.size())
     println("Time: ${System.currentTimeMillis() - startTime}")
