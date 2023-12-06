@@ -91,6 +91,20 @@ fun createTree(player: Piece, depth: Int, gm: Game, m: Move? = null): MoveTree {
     return tree
 }
 
+fun createTreeTR(player: Piece, depth: Int, gm: Game, m: Move? = null, tree: MoveTree = MoveTree(gm, m)): MoveTree {
+    if (depth == 0) {
+        return tree
+    }
+
+    gm.moves(player).forEach {
+        val newGame = gm.applyMove(it)
+        val newTree = MoveTree(newGame, it)
+        tree.add(createTreeTR(player.opposite(), depth - 1, newGame, it, newTree))
+    }
+
+    return tree
+}
+
 fun main() {
     val startTime = System.currentTimeMillis()
     val tree: MoveTree
