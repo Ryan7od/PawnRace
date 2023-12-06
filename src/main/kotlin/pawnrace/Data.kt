@@ -1,17 +1,5 @@
 package pawnrace
 
-fun max(x: Int, y: Int): Int =
-    when {
-        x > y -> x
-        else -> y
-    }
-
-fun min(x: Int, y: Int): Int =
-    when {
-        x > y -> y
-        else -> x
-    }
-
 enum class Piece { B, W, N;
     fun opposite() =
         when (this) {
