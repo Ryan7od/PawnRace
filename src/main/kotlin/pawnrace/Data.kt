@@ -59,5 +59,12 @@ class MoveTree(val game: Game, val move: Move? = null, private var children: Lis
 
     fun getChildren(): List<MoveTree> = children
 
-    fun isTerminal(): Boolean = children.size == 0
+    fun isTerminal(): Boolean = children.isEmpty()
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append("$game\n")
+        children.forEach { sb.append("$it\n") }
+        return sb.toString()
+    }
 }
