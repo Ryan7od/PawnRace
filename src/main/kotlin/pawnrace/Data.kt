@@ -65,6 +65,7 @@ class MoveTree(val game: Game, val move: Move? = null, private var children: Lis
         val sb = StringBuilder()
         sb.append("$game\n")
         children.forEach { sb.append("$it\n") }
+        sb.append("done\n")
         return sb.toString()
     }
 }
