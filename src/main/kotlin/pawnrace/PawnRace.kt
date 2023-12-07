@@ -28,11 +28,23 @@ class PawnRace {
             File(gaps.lowercase()[0].code - 'a'.code),
             File(gaps.lowercase()[1].code - 'a'.code),
         )
+        var game = Game(board, player)
+
+        val hash = HashMap<Game, Pair<Int, Int>>()
 
         // If you are the white player, you are now allowed to move
         // you may send your move, once you have decided what it will be, with output.println(move)
         // for example: output.println("axb4")
-        // TODO: White player should decide what move to make and send it
+        if (player == Piece.W) {
+            val move = game.parseMove(gaps[1] + "4")
+            game = if (move != null) {
+                game.applyMove(move)
+            } else {
+                game.applyMove(game.randomMove())
+            }
+            output.println(move)
+            println(game)
+        }
 
         // After point, you may create a loop which waits to receive the other players move
         // (via input.readLine()), updates the state, checks for game over and, if not, decides
@@ -48,6 +60,17 @@ class PawnRace {
           * check game over
           * rinse, and repeat.
     */
+        while(!game.over()) {
+            game = game.applyMove(game.parseMove(input.readLine()) ?: game.randomMove())
+            println(game)
+            if (game.over()) {
+                break
+            }
+            val move = itDeepN(game, 10, 3500, player, hash)
+            output.println(move)
+            game = game.applyMove(move ?: game.randomMove())
+            println(game)
+        }
 
         // Once the loop is over, the game has finished and you may wish to print who has won
         // If your advanced AI has used any files, make sure you close them now!

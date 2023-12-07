@@ -195,4 +195,19 @@ class Board {
         sb.append("\n   ABCDEFGH   \n")
         return sb.toString()
     }
+
+    override fun equals(other: Any?): Boolean =
+        other is Board && other.board.contentEquals(board)
+
+    override fun hashCode(): Int {
+        var result = 17
+        board.forEachIndexed {
+                i, e ->
+            e.forEachIndexed {
+                    j, _ ->
+                result = (i + j) * board[i][j].hashCode() + 7 * result
+            }
+        }
+        return result
+    }
 }

@@ -3,6 +3,7 @@ package pawnrace
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.system.measureTimeMillis
 
 fun minimaxP(
     executor: ExecutorService,
@@ -17,7 +18,7 @@ fun minimaxP(
         var value = Int.MIN_VALUE
         node.getChildren().forEach {
             executor.submit {
-                value = max(value, minimax(it, depth - 1, false))
+                value = maxOf(value, minimax(it, depth - 1, false))
             }
         }
         return value
@@ -25,7 +26,7 @@ fun minimaxP(
         var value = Int.MAX_VALUE
         node.getChildren().forEach {
             executor.submit {
-                value = min(value, minimax(it, depth - 1, false))
+                value = minOf(value, minimax(it, depth - 1, false))
             }
         }
         return value
@@ -39,13 +40,13 @@ fun minimax(node: MoveTree, depth: Int, maxPlayer: Boolean): Int {
     if (maxPlayer) {
         var value = Int.MIN_VALUE
         node.getChildren().forEach {
-            value = max(value, minimax(it, depth - 1, false))
+            value = maxOf(value, minimax(it, depth - 1, false))
         }
         return value
     } else {
         var value = Int.MAX_VALUE
         node.getChildren().forEach {
-            value = min(value, minimax(it, depth - 1, false))
+            value = minOf(value, minimax(it, depth - 1, false))
         }
         return value
     }
@@ -100,6 +101,76 @@ fun createTreePtr(
     return tree
 }
 
+fun itDeepM(game: Game, maxDepth: Int, timeLimitMillis: Long, player: Piece): Move? {
+    var bestMove: Move? = null
+    var depth = 4
+    var elapsedTime: Long = 0
+
+    while (depth <= maxDepth && elapsedTime < timeLimitMillis) {
+        val timeTaken = measureTimeMillis {
+            bestMove = findBestMoveM(game, depth, player)
+        }
+        elapsedTime += timeTaken
+
+        val remainingTime = timeLimitMillis - elapsedTime
+        val estimatedTimeForNextDepth = timeTaken*4
+        if (remainingTime < estimatedTimeForNextDepth) {
+            break
+        }
+
+        depth++
+    }
+
+    return bestMove
+}
+
+fun findBestMoveM(game: Game, depth: Int, player: Piece): Move? {
+    val moves = game.moves(player)
+    var bestMove: Move? = null
+    var bestValue = Int.MIN_VALUE
+
+    for (move in moves) {
+        val newGame = game.applyMove(move)
+        val value = abMinimaxP(newGame, depth - 1, Int.MIN_VALUE, Int.MAX_VALUE, player.opposite(), false)
+
+        if (value > bestValue) {
+            bestValue = value
+            bestMove = move
+        }
+    }
+    return bestMove
+}
+
+fun abMinimaxP(game: Game, depth: Int, a: Int, b: Int, player: Piece, maxPlayer: Boolean = true): Int {
+    if (depth == 0 || game.over()) {
+        return evaluate(game, player)
+    }
+
+    var alpha = a
+    var beta = b
+
+    val moves = game.moves(player)
+    var value = if (maxPlayer) Int.MIN_VALUE else Int.MAX_VALUE
+
+    for (move in moves) {
+        val newGame = game.applyMove(move)
+        val newValue = abMinimaxP(newGame, depth - 1, alpha, beta, player.opposite(), !maxPlayer)
+
+        if (maxPlayer) {
+            value = maxOf(value, newValue)
+            alpha = maxOf(alpha, value)
+        } else {
+            value = minOf(value, newValue)
+            beta = minOf(beta, value)
+        }
+
+        if (beta <= alpha) {
+            break // Alpha-Beta Pruning
+        }
+    }
+    return value
+}
+
 fun createTree(player: Piece, depth: Int, gm: Game, m: Move? = null): MoveTree {
     val tree = MoveTree(gm, m)
 
@@ -131,7 +202,7 @@ fun createTreeTR(player: Piece, depth: Int, gm: Game, m: Move? = null, tree: Mov
 fun main() {
     for (i in 0..15) {
         val startTime = System.currentTimeMillis()
-        val tree: MoveTree
+        val tree: MoveTree? = null
 
 //        val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
 //
@@ -159,7 +230,7 @@ fun main() {
 //    tree = createTree(Piece.W, 7, Game(Board(File(0), File(7)), Piece.W))
 //    tree = createTreeTR(Piece.W, 7, Game(Board(File(0), File(7)), Piece.W))
 
-        println(tree.size())
+        println(tree?.size())
         println("Time: ${System.currentTimeMillis() - startTime}")
     }
 }

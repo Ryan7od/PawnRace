@@ -1,6 +1,7 @@
 package pawnrace
 
 import kotlin.math.abs
+import kotlin.random.Random
 
 class Game(var board: Board, var player: Piece, val moves: MutableStack = MutableStack(mutableListOf())) {
     fun applyMove(move: Move): Game {
@@ -79,9 +80,13 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         return list.toList()
     }
 
+    fun randomMove(): Move =
+        moves(player)[Random.nextInt(0, moves(player).size)]
+
     fun over(): Boolean {
         if (board.positionsOf(Piece.B).isEmpty() ||
-            board.positionsOf(Piece.W).isEmpty()
+            board.positionsOf(Piece.W).isEmpty() ||
+            moves(player).isEmpty()
         ) {
             return true
         }
@@ -90,12 +95,14 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         return false
     }
 
-    fun winner(): Piece? {
+    fun winner(): Piece {
         if (board.positionsOf(Piece.B).isEmpty()) return Piece.W
         if (board.positionsOf(Piece.W).isEmpty()) return Piece.B
-        board.positionsOf(Piece.B).forEach { if (it.rank.rank == 0) return Piece.B }
-        board.positionsOf(Piece.W).forEach { if (it.rank.rank == 7) return Piece.W }
-        return null
+        board.positionsOf(Piece.B)
+            .forEach { if (it.rank.rank == 0) return Piece.B }
+        board.positionsOf(Piece.W)
+            .forEach { if (it.rank.rank == 7) return Piece.W }
+        return Piece.N
     }
 
     fun parseMove(san: String): Move? {
@@ -139,6 +146,13 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
     }
 
     override fun toString() = board.toString()
+
+    override fun equals(other: Any?): Boolean =
+        other is Game && other.board == board
+
+    override fun hashCode(): Int {
+        return board.hashCode()
+    }
 }
 
 fun main() {
