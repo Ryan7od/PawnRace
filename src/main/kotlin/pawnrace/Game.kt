@@ -43,12 +43,14 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         board.positionsOf(piece).forEach {
             if (it.rank.rank + forward in 0..7) {
                 if (it.rank.rank == 1 && piece == Piece.W &&
-                    board.pieceAt(it.move(2*forward, 0)) == Piece.N) {
-                    list.add(Move(piece, it, it.move(2*forward, 0), MoveType.PEACEFUL))
+                    board.pieceAt(it.move(2 * forward, 0)) == Piece.N
+                ) {
+                    list.add(Move(piece, it, it.move(2 * forward, 0), MoveType.PEACEFUL))
                 }
                 if (it.rank.rank == 6 && piece == Piece.B &&
-                    board.pieceAt(it.move(2*forward, 0)) == Piece.N) {
-                    list.add(Move(piece, it, it.move(2*forward, 0), MoveType.PEACEFUL))
+                    board.pieceAt(it.move(2 * forward, 0)) == Piece.N
+                ) {
+                    list.add(Move(piece, it, it.move(2 * forward, 0), MoveType.PEACEFUL))
                 }
                 if (board.pieceAt(it.move(forward, 0)) == Piece.N) {
                     list.add(Move(piece, it, it.move(forward, 0), MoveType.PEACEFUL))
