@@ -151,8 +151,8 @@ class Board {
         return false
     }
 
-    fun move(m: Move) {
-        if (isValidMove(m)) {
+    fun move(m: Move, lastMove: Move? = null) {
+        if (isValidMove(m, lastMove)) {
             board[m.to.rank.rank][m.to.file.file] = board[m.from.rank.rank][m.from.file.file]
             board[m.from.rank.rank][m.from.file.file] = Piece.N
             if (m.type == MoveType.EN_PASSANT) {

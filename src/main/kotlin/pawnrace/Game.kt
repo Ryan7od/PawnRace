@@ -1,11 +1,16 @@
 package pawnrace
 
+import java.util.concurrent.Executors
 import kotlin.random.Random
 
 class Game(var board: Board, var player: Piece, val moves: MutableStack = MutableStack(mutableListOf())) {
     fun applyMove(move: Move): Game {
         val newBoard = board.copy()
-        newBoard.move(move)
+        if (moves.isEmpty())
+            newBoard.move(move)
+        else {
+            newBoard.move(move, moves.peek())
+        }
         return Game(newBoard, player.opposite(), moves.copy().push(move))
     }
 
@@ -177,5 +182,7 @@ fun main() {
     println(game)
     game = game.applyMove(game.parseMove("bxa5", Piece.W)!!)
     println(game)
-
+    val executor = Executors.newSingleThreadExecutor()
+    println(itDeepN(game, 15, 4500, Piece.B, hash = HashMap<Game, Pair<Int, Int>>(), executor))
+    executor.shutdown()
 }
