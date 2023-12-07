@@ -60,7 +60,7 @@ class PawnRace {
           * check game over
           * rinse, and repeat.
     */
-        while(!game.over()) {
+        while (!game.over()) {
             game = game.applyMove(game.parseMove(input.readLine()) ?: game.randomMove())
             println(game)
             if (game.over()) {
