@@ -27,7 +27,7 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         }
     }
 
-    fun moves(piece: Piece): List<Move> {
+    fun moves(piece: Piece = player): List<Move> {
         val lastMove: Move? = if (moves.isEmpty()) {
             null
         } else {
@@ -85,8 +85,8 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         return list.toList().filter { board.isValidMove(it, lastMove) }
     }
 
-    fun randomMove(): Move =
-        moves(player)[Random.nextInt(0, moves(player).size)]
+    fun randomMove(p: Piece): Move =
+        moves(p)[Random.nextInt(0, moves(p).size)]
 
     fun over(): Boolean {
         if (board.positionsOf(Piece.B).isEmpty() ||
@@ -122,8 +122,15 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
             else -> 1
         }
         if (peace) {
-            pos = Position(san).move(-forward, 0)
-            type = MoveType.PEACEFUL
+            board.positionsOf(piece).forEach {
+                if (it.file.file == file) {
+                    if (it.move(forward, 0) == pos2) {
+                        pos = it
+                    } else if (it.move(forward * 2, 0) == pos2) {
+                        pos = it
+                    }
+                }
+            }
         } else {
             board.positionsOf(piece).forEach {
                 if (it.file.file == file &&
@@ -155,4 +162,21 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
 }
 
 fun main() {
+    var game = Game(Board(File(1), File(2)), Piece.W)
+//    val move = game.parseMove("d3", Piece.W)!!
+//    println(game.board.positionsOf(Piece.W))
+//    println("${ move.from } ${move.to} ${move.piece} ${move.type}")
+//    println(game.board.isValidMove(move))
+    println(game.moves(Piece.W).map { game.parseMove(it.toString(), Piece.W) })
+    game = game.applyMove(game.parseMove("D4", Piece.W)!!)
+    println(game)
+    game = game.applyMove(game.parseMove("E5", Piece.B)!!)
+    println(game)
+    println(game.moves())
+    game = game.applyMove(game.parseMove("DxE5", Piece.W)!!)
+    println(game)
+//    game = game.applyMove(game.parseMove("D4", Piece.W)!!)
+//    println(game)
+//    game = game.applyMove(game.parseMove("D4", Piece.B)!!)
+//    println(game)
 }

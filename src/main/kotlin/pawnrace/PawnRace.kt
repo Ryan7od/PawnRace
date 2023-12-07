@@ -6,7 +6,7 @@ import java.io.PrintWriter
 import java.util.concurrent.Executors
 
 // You should not add any more member values or member functions to this class
-// (or change its name!). The autorunner will load it in via reflection and it
+// (or change its name!). The autorunner will load it in via reflection, and it
 // will be safer for you to just call your code from within the playGame member
 // function, without any unexpected surprises!
 class PawnRace {
@@ -44,7 +44,7 @@ class PawnRace {
             game = if (move != null) {
                 game.applyMove(move)
             } else {
-                move = game.randomMove()
+                move = game.randomMove(Piece.W)
                 game.applyMove(move)
             }
             output.println(move)
@@ -56,7 +56,7 @@ class PawnRace {
         // on a new move and again send that with output.println(move). You should check if the
         // game is over after every move.
         while (!game.over()) {
-            game = game.applyMove(game.parseMove(input.readLine(), opp) ?: game.randomMove())
+            game = game.applyMove(game.parseMove(input.readLine(), opp) ?: game.randomMove(opp))
             println(game)
             if (game.over()) {
                 break
@@ -64,7 +64,7 @@ class PawnRace {
             val executor = Executors.newSingleThreadExecutor()
             var move = itDeepN(game, 10, 4500, player, hash, executor)
             if (move == null) {
-                move = game.randomMove()
+                move = game.randomMove(player)
             }
             output.println(move)
             executor.shutdown()
@@ -80,5 +80,5 @@ class PawnRace {
 
 // When running the command, provide an argument either W or B, this indicates your player colour
 fun main(args: Array<String>) {
-    PawnRace().playGame(args[0][0], PrintWriter(System.out, true), BufferedReader(InputStreamReader(System.`in`)))
+    PawnRace().playGame('W', PrintWriter(System.out, true), BufferedReader(InputStreamReader(System.`in`)))
 }

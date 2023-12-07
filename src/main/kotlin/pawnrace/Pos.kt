@@ -36,5 +36,19 @@ data class Position(val pos: String) {
         return "$file$rank"
     }
 
+    override fun equals(other: Any?): Boolean {
+        return other is Position &&
+                file == other.file &&
+                rank == other.rank
+    }
+
+
+
     fun move(y: Int, x: Int): Position = Position("${File(file.file + x)}${Rank(rank.rank + y)}")
+    override fun hashCode(): Int {
+        var result = pos.hashCode()
+        result = 31 * result + file.hashCode()
+        result = 31 * result + rank.hashCode()
+        return result
+    }
 }
