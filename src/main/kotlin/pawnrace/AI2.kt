@@ -1,19 +1,65 @@
 package pawnrace
 
+import kotlin.math.pow
 import kotlin.system.measureTimeMillis
 
 fun evaluate(game: Game, me: Piece): Int {
+    val ot = me.opposite()
+    var score = 0
+    val posMe = game.board.positionsOf(me)
+    val posOt = game.board.positionsOf(ot)
+
     // number of pawns
+    score += 20 * (posMe.size - posOt.size)
+
     // doubled
+    score -= 10 * posMe.map { a ->
+        if (posMe.map { it.file.file }.contains(a.file.file)) {
+            1
+        } else {
+            0
+        }
+    }.sum()
+
+    score += 10 * posOt.map { a ->
+        if (posOt.map { it.file.file }.contains(a.file.file)) {
+            1
+        } else {
+            0
+        }
+    }.sum()
+
     // blocked
     // advancement when protected
     // control centre??
     // chains - 3 > 2*2
     // passed
-    // rank of pawns - 4 >> 3
-    //
+    score += 4 * posMe.sumOf {
+        if (game.board.isPassedPawn(it, me)) {
+            2.0.pow(it.rank.rank).toInt()
+        } else {
+            0
+        }
+    }
 
-    return 0
+    score -= 4 * posOt.sumOf {
+        if (game.board.isPassedPawn(it, ot)) {
+            2.0.pow(it.rank.rank).toInt()
+        } else {
+            0
+        }
+    }
+
+    // rank of pawns - 4 >> 3
+    score += 1 * posMe.sumOf {
+        2.0.pow(it.rank.rank).toInt()
+    }
+
+    score -= 1 * posOt.sumOf {
+        2.0.pow(it.rank.rank).toInt()
+    }
+
+    return score
 }
 
 fun negaScout(
@@ -72,8 +118,8 @@ fun negaScout(
     var score: Int
 
     val firstMove = moves.firstOrNull()
-    if (firstMove != null) {
-        score = -negaScout(
+    score = if (firstMove != null) {
+        -negaScout(
             game.applyMove(firstMove),
             depth - 1,
             -beta,
@@ -83,7 +129,7 @@ fun negaScout(
             hash,
         )
     } else {
-        score = evaluate(game, me)
+        evaluate(game, me)
     }
 
     alpha = maxOf(alpha, score)
@@ -159,7 +205,7 @@ fun itDeepN(
     hash: HashMap<Game, Pair<Int, Int>>,
 ): Move? {
     var bestMove: Move? = null
-    var depth = 2
+    var depth = 3
     var elapsedTime: Long = 0
 
     while (depth <= maxDepth && elapsedTime < timeLimitMillis) {
@@ -169,7 +215,7 @@ fun itDeepN(
         elapsedTime += timeTaken
 
         val remainingTime = timeLimitMillis - elapsedTime
-        val estimatedTimeForNextDepth = timeTaken * 4
+        val estimatedTimeForNextDepth = timeTaken * 10
         if (remainingTime < estimatedTimeForNextDepth) {
             break
         }

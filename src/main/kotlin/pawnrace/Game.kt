@@ -41,22 +41,28 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         }
         val list: MutableList<Move> = mutableListOf()
         board.positionsOf(piece).forEach {
-            if (it.rank.rank + forward in 0..7 &&
-                board.pieceAt(it.move(forward, 0)) == Piece.N
-            ) {
-                list.add(Move(piece, it, it.move(forward, 0), MoveType.PEACEFUL))
-            }
-            if (it.rank.rank + forward in 0..7 &&
-                it.file.file < 7 &&
-                board.pieceAt(it.move(forward, 1)) == piece.opposite()
-            ) {
-                list.add(Move(piece, it, it.move(forward, 1), MoveType.CAPTURE))
-            }
-            if (it.rank.rank + forward in 0..7 &&
-                it.file.file > 0 &&
-                board.pieceAt(it.move(forward, -1)) == piece.opposite()
-            ) {
-                list.add(Move(piece, it, it.move(forward, -1), MoveType.CAPTURE))
+            if (it.rank.rank + forward in 0..7) {
+                if (it.rank.rank == 1 && piece == Piece.W &&
+                    board.pieceAt(it.move(2*forward, 0)) == Piece.N) {
+                    list.add(Move(piece, it, it.move(2*forward, 0), MoveType.PEACEFUL))
+                }
+                if (it.rank.rank == 6 && piece == Piece.B &&
+                    board.pieceAt(it.move(2*forward, 0)) == Piece.N) {
+                    list.add(Move(piece, it, it.move(2*forward, 0), MoveType.PEACEFUL))
+                }
+                if (board.pieceAt(it.move(forward, 0)) == Piece.N) {
+                    list.add(Move(piece, it, it.move(forward, 0), MoveType.PEACEFUL))
+                }
+                if (it.file.file < 7 &&
+                    board.pieceAt(it.move(forward, 1)) == piece.opposite()
+                ) {
+                    list.add(Move(piece, it, it.move(forward, 1), MoveType.CAPTURE))
+                }
+                if (it.file.file > 0 &&
+                    board.pieceAt(it.move(forward, -1)) == piece.opposite()
+                ) {
+                    list.add(Move(piece, it, it.move(forward, -1), MoveType.CAPTURE))
+                }
             }
             if (lastMove != null) {
                 if (it.file.file < 7 &&
@@ -77,7 +83,7 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
                 }
             }
         }
-        return list.toList()
+        return list.toList().filter { board.isValidMove(it, lastMove) }
     }
 
     fun randomMove(): Move =
