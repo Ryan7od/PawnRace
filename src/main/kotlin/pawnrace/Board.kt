@@ -50,14 +50,10 @@ class Board {
     fun positionsOf(piece: Piece): List<Position> {
         val out: MutableList<Position> = mutableListOf()
         board.forEachIndexed { r, e ->
-            e.forEachIndexed { f, ee ->
-                if (ee == piece) {
-                    out.add(
-                        Position(
-                            (f + 'a'.code).toChar().uppercase() +
-                                "${r + 1}",
-                        ),
-                    )
+            e.forEachIndexed { f, _ ->
+                val pos = Position("${File(f)}${Rank(r)}")
+                if (pieceAt(pos) == piece) {
+                    out.add(pos)
                 }
             }
         }
@@ -75,7 +71,10 @@ class Board {
             // Peaceful move attacking
             (
                 move.type == MoveType.PEACEFUL &&
-                    pieceAt(move.to) == pieceAt(move.from).opposite()
+                    (
+                        pieceAt(move.to) == pieceAt(move.from).opposite() ||
+                            move.to.file.file != move.from.file.file
+                        )
                 )
         ) {
             return false
