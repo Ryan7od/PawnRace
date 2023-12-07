@@ -86,7 +86,10 @@ class Board {
                 pieceAt(move.to) == Piece.N &&
                 (
                     move.to == move.from.move(-1, 0) ||
-                        move.to == move.from.move(-2, 0)
+                        (
+                            move.to == move.from.move(-2, 0) &&
+                                move.from.rank.rank == 6
+                            )
                     )
             ) {
                 return true
@@ -95,7 +98,10 @@ class Board {
                 pieceAt(move.to) == Piece.N &&
                 (
                     move.to == move.from.move(1, 0) ||
-                        move.to == move.from.move(2, 0)
+                        (
+                            move.to == move.from.move(2, 0) &&
+                                move.from.rank.rank == 1
+                            )
                     )
             ) {
                 return true
@@ -111,10 +117,13 @@ class Board {
                         move.to == move.from.move(-1, 1)
                     ) &&
                 (
-                    pieceAt(move.from) == pieceAt(move.to).opposite() ||
+                    pieceAt(move.to) == Piece.W ||
                         (
                             pieceAt(move.to.move(1, 0)) == Piece.W &&
-                                (lastMove?.to == lastMove?.from?.move(2, 0))
+                                (
+                                    lastMove != null &&
+                                        lastMove.to == lastMove.from.move(2, 0)
+                                    )
                             )
                     )
             ) {
@@ -129,7 +138,10 @@ class Board {
                     pieceAt(move.from) == pieceAt(move.to).opposite() ||
                         (
                             pieceAt(move.to.move(-1, 0)) == Piece.B &&
-                                (lastMove?.to == lastMove?.from?.move(-2, 0))
+                                (
+                                    lastMove != null &&
+                                        lastMove.to == lastMove.from.move(-2, 0)
+                                    )
                             )
                     )
             ) {

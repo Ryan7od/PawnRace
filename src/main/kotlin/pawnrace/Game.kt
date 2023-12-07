@@ -1,6 +1,5 @@
 package pawnrace
 
-import kotlin.math.abs
 import kotlin.random.Random
 
 class Game(var board: Board, var player: Piece, val moves: MutableStack = MutableStack(mutableListOf())) {
@@ -66,9 +65,8 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
                     list.add(Move(piece, it, it.move(forward, -1), MoveType.CAPTURE))
                 }
             }
-            if (lastMove != null) {
+            if (lastMove != null && (it.rank.rank == 3 || it.rank.rank == 5)) {
                 if (it.file.file < 7 &&
-                    it.rank.rank < 6 && it.rank.rank > 1 &&
                     board.pieceAt(it.move(0, 1)) == piece.opposite() &&
                     lastMove.to == it.move(0, 1) &&
                     lastMove.from == it.move(2 * forward, 1)
@@ -76,7 +74,6 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
                     list.add(Move(piece, it, it.move(forward, 1), MoveType.EN_PASSANT))
                 }
                 if (it.file.file > 0 &&
-                    it.rank.rank in 1..6 &&
                     board.pieceAt(it.move(0, -1)) == piece.opposite() &&
                     lastMove.to == it.move(0, -1) &&
                     lastMove.from == it.move(2 * forward, -1)
@@ -113,44 +110,38 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
         return Piece.N
     }
 
-    fun parseMove(san: String): Move? {
-        val move: Move
-        val file = san[0].uppercase()
-        val rank = san.last().digitToInt() - 1
-        var pos: Position? = null
-        var piece: Piece = Piece.N
-        var type = MoveType.CAPTURE
-        board.positionsOf(Piece.B).forEach {
-            if (it.file.toString() == file) {
-                if (abs(it.rank.rank - rank) <= 1) {
-                    pos = it
-                    piece = Piece.B
-                }
-            }
+    fun parseMove(san: String, piece: Piece): Move? {
+        val file = san.lowercase()[0].code - 'a'.code
+        val rank = san[san.length - 1].digitToInt() - 1
+        val peace = san[1] != 'x'
+        var pos: Position = Position("A1")
+        val pos2: Position = Position(san.substring(san.length - 2))
+        var type: MoveType = MoveType.PEACEFUL
+        val forward = when (piece) {
+            Piece.B -> -1
+            else -> 1
         }
-        board.positionsOf(Piece.W).forEach {
-            if (it.file.toString() == file) {
-                if (abs(it.rank.rank - rank) == 1) {
-                    pos = it
-                    piece = Piece.W
-                }
-                if (it.rank.rank == rank) {
-                    pos = it
-                    piece = Piece.W
-                    type = MoveType.EN_PASSANT
-                }
-            }
-        }
-        if (pos == null) {
-            return null
-        }
-        val pos2 = Position(file + (rank + 1).toString())
-        move = if (san.length == 2) {
-            Move(piece, pos!!, pos2, MoveType.PEACEFUL)
+        if (peace) {
+            pos = Position(san).move(-forward, 0)
+            type = MoveType.PEACEFUL
         } else {
-            Move(piece, pos!!, pos2, type)
+            board.positionsOf(piece).forEach {
+                if (it.file.file == file &&
+                    (
+                        it == pos2.move(-forward, 1) ||
+                            it == pos2.move(-forward, -1)
+                        )
+                ) {
+                    pos = it
+                    type = if (board.pieceAt(pos) == piece.opposite()) {
+                        MoveType.CAPTURE
+                    } else {
+                        MoveType.EN_PASSANT
+                    }
+                }
+            }
         }
-        return move
+        return Move(piece, pos, pos2, type)
     }
 
     override fun toString() = board.toString()
@@ -164,15 +155,4 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
 }
 
 fun main() {
-    var game = Game(Board(File(4), File(4)), Piece.W)
-    game.moves(Piece.W).forEach {
-        println(it)
-    }
-    println(game)
-    game = game.applyMove(game.parseMove("b3") ?: Move(Piece.W, Position("C2"), Position("C3"), MoveType.PEACEFUL))
-    println(game)
-    println(game.parseMove("d3"))
-    game.moves(Piece.W).forEach {
-        println(it)
-    }
 }

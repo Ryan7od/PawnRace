@@ -3,6 +3,7 @@ package pawnrace
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
+import java.util.concurrent.Executors
 
 // You should not add any more member values or member functions to this class
 // (or change its name!). The autorunner will load it in via reflection and it
@@ -16,6 +17,7 @@ class PawnRace {
         // Step 1: If you are the black player, you should send a string containing the gaps
         // It should be of the form "wb" with the white gap first and then the black gap: i.e. "AH"
         val player: Piece = parseColour(colour)
+        val opp = player.opposite()
         if (player == Piece.B) {
             output.println("AH")
         }
@@ -38,7 +40,7 @@ class PawnRace {
         // you may send your move, once you have decided what it will be, with output.println(move)
         // for example: output.println("axb4")
         if (player == Piece.W) {
-            var move = game.parseMove(gaps[1] + "4")
+            var move = game.parseMove(gaps[1] + "4", player)
             game = if (move != null) {
                 game.applyMove(move)
             } else {
@@ -53,27 +55,19 @@ class PawnRace {
         // (via input.readLine()), updates the state, checks for game over and, if not, decides
         // on a new move and again send that with output.println(move). You should check if the
         // game is over after every move.
-    /* TODO: Create the "game loop", which:
-          * gets the opponents move
-          * updates board
-          * checks game over, if not then
-          * choose a move
-          * send this move
-          * update the state
-          * check game over
-          * rinse, and repeat.
-    */
         while (!game.over()) {
-            game = game.applyMove(game.parseMove(input.readLine()) ?: game.randomMove())
+            game = game.applyMove(game.parseMove(input.readLine(), opp) ?: game.randomMove())
             println(game)
             if (game.over()) {
                 break
             }
-            var move = itDeepN(game, 10, 3500, player, hash)
+            val executor = Executors.newSingleThreadExecutor()
+            var move = itDeepN(game, 10, 4500, player, hash, executor)
             if (move == null) {
                 move = game.randomMove()
             }
             output.println(move)
+            executor.shutdown()
             game = game.applyMove(move)
             println(game)
         }

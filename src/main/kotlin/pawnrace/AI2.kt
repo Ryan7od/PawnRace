@@ -1,7 +1,9 @@
 package pawnrace
 
+import java.lang.Exception
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.TimeUnit
 import kotlin.math.pow
-import kotlin.system.measureTimeMillis
 
 fun evaluate(game: Game, me: Piece): Int {
     val ot = me.opposite()
@@ -10,10 +12,10 @@ fun evaluate(game: Game, me: Piece): Int {
     val posOt = game.board.positionsOf(ot)
 
     // number of pawns
-    score += 20 * (posMe.size - posOt.size)
+    score += 50 * (posMe.size - posOt.size)
 
     // doubled
-    score -= 10 * posMe.map { a ->
+    score -= 30 * posMe.map { a ->
         if (posMe.map { it.file.file }.contains(a.file.file)) {
             1
         } else {
@@ -21,7 +23,7 @@ fun evaluate(game: Game, me: Piece): Int {
         }
     }.sum()
 
-    score += 10 * posOt.map { a ->
+    score += 30 * posOt.map { a ->
         if (posOt.map { it.file.file }.contains(a.file.file)) {
             1
         } else {
@@ -36,7 +38,12 @@ fun evaluate(game: Game, me: Piece): Int {
     // passed
     score += 4 * posMe.sumOf {
         if (game.board.isPassedPawn(it, me)) {
-            2.0.pow(it.rank.rank).toInt()
+            val rank = if (me == Piece.W) {
+                it.rank.rank
+            } else {
+                7 - it.rank.rank
+            }
+            2.0.pow(rank).toInt()
         } else {
             0
         }
@@ -44,6 +51,11 @@ fun evaluate(game: Game, me: Piece): Int {
 
     score -= 4 * posOt.sumOf {
         if (game.board.isPassedPawn(it, ot)) {
+            val rank = if (me == Piece.W) {
+                it.rank.rank
+            } else {
+                7 - it.rank.rank
+            }
             2.0.pow(it.rank.rank).toInt()
         } else {
             0
@@ -52,11 +64,21 @@ fun evaluate(game: Game, me: Piece): Int {
 
     // rank of pawns - 4 >> 3
     score += 1 * posMe.sumOf {
-        2.0.pow(it.rank.rank).toInt()
+        val rank = if (me == Piece.W) {
+            it.rank.rank
+        } else {
+            7 - it.rank.rank
+        }
+        2.0.pow(rank).toInt()
     }
 
     score -= 1 * posOt.sumOf {
-        2.0.pow(it.rank.rank).toInt()
+        val rank = if (me == Piece.W) {
+            it.rank.rank
+        } else {
+            7 - it.rank.rank
+        }
+        2.0.pow(rank).toInt()
     }
 
     return score
@@ -203,24 +225,22 @@ fun itDeepN(
     timeLimitMillis: Long,
     player: Piece,
     hash: HashMap<Game, Pair<Int, Int>>,
+    executor: ExecutorService,
 ): Move? {
     var bestMove: Move? = null
     var depth = 3
-    var elapsedTime: Long = 0
 
-    while (depth <= maxDepth && elapsedTime < timeLimitMillis) {
-        val timeTaken = measureTimeMillis {
-            bestMove = findBestMoveN(game, depth, player, hash)
+    try {
+        val future = executor.submit {
+            while (true) {
+                bestMove = findBestMoveN(game, depth, player, hash)
+                depth++
+            }
         }
-        elapsedTime += timeTaken
-
-        val remainingTime = timeLimitMillis - elapsedTime
-        val estimatedTimeForNextDepth = timeTaken * 10
-        if (remainingTime < estimatedTimeForNextDepth) {
-            break
-        }
-
-        depth++
+        future[timeLimitMillis, TimeUnit.MILLISECONDS]
+    } catch (_: Exception) {
+    } finally {
+        executor.shutdown()
     }
 
     return bestMove
