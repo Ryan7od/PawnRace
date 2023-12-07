@@ -12,7 +12,7 @@ fun evaluate(game: Game, me: Piece): Int {
     val posOt = game.board.positionsOf(ot)
 
     // number of pawns
-    score += 50 * (posMe.size - posOt.size)
+    score += 200 * (posMe.size - posOt.size)
 
     // doubled
     score -= 30 * posMe.map { a ->
@@ -36,7 +36,7 @@ fun evaluate(game: Game, me: Piece): Int {
     // control centre??
     // chains - 3 > 2*2
     // passed
-    score += 4 * posMe.sumOf {
+    score += 15 * posMe.sumOf {
         if (game.board.isPassedPawn(it, me)) {
             val rank = if (me == Piece.W) {
                 it.rank.rank
@@ -49,7 +49,7 @@ fun evaluate(game: Game, me: Piece): Int {
         }
     }
 
-    score -= 4 * posOt.sumOf {
+    score -= 15 * posOt.sumOf {
         if (game.board.isPassedPawn(it, ot)) {
             val rank = if (me == Piece.W) {
                 it.rank.rank
@@ -63,7 +63,7 @@ fun evaluate(game: Game, me: Piece): Int {
     }
 
     // rank of pawns - 4 >> 3
-    score += 1 * posMe.sumOf {
+    score += 3 * posMe.sumOf {
         val rank = if (me == Piece.W) {
             it.rank.rank
         } else {
@@ -72,7 +72,7 @@ fun evaluate(game: Game, me: Piece): Int {
         2.0.pow(rank).toInt()
     }
 
-    score -= 1 * posOt.sumOf {
+    score -= 3 * posOt.sumOf {
         val rank = if (me == Piece.W) {
             it.rank.rank
         } else {

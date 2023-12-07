@@ -162,21 +162,20 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
 }
 
 fun main() {
-    var game = Game(Board(File(1), File(2)), Piece.W)
+    var game = Game(Board(File(0), File(7)), Piece.W)
 //    val move = game.parseMove("d3", Piece.W)!!
 //    println(game.board.positionsOf(Piece.W))
 //    println("${ move.from } ${move.to} ${move.piece} ${move.type}")
 //    println(game.board.isValidMove(move))
-    println(game.moves(Piece.W).map { game.parseMove(it.toString(), Piece.W) })
-    game = game.applyMove(game.parseMove("D4", Piece.W)!!)
+    game = game.applyMove(game.parseMove("H4", Piece.W)!!)
     println(game)
-    game = game.applyMove(game.parseMove("E5", Piece.B)!!)
+    game = game.applyMove(game.parseMove("a5", Piece.B)!!)
     println(game)
-    println(game.moves())
-    game = game.applyMove(game.parseMove("DxE5", Piece.W)!!)
+    game = game.applyMove(game.parseMove("b4", Piece.W)!!)
     println(game)
-//    game = game.applyMove(game.parseMove("D4", Piece.W)!!)
-//    println(game)
-//    game = game.applyMove(game.parseMove("D4", Piece.B)!!)
-//    println(game)
+    game = game.applyMove(game.parseMove("b6", Piece.B)!!)
+    println(game)
+    game = game.applyMove(game.parseMove("bxa5", Piece.W)!!)
+    println(game)
+
 }
