@@ -194,6 +194,7 @@ fun main() {
     println(game)
     game = game.applyMove(game.parseMove("b4", Piece.B)!!)
     println(game)
+    println(game.parseMove("hxg5", Piece.W)!!.type)
     game = game.applyMove(game.parseMove("hxg5", Piece.W)!!)
     println(game)
     game = game.applyMove(game.parseMove("d6", Piece.B)!!)
