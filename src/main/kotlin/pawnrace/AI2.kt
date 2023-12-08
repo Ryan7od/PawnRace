@@ -260,8 +260,6 @@ fun findBestMoveN(
 
 fun itDeepN(
     game: Game,
-    maxDepth:
-    Int,
     timeLimitMillis: Long,
     player: Piece,
     hash: HashMap<Game, Pair<Int, Int>>,
@@ -274,7 +272,7 @@ fun itDeepN(
         val future = executor.submit {
             val startTime = System.currentTimeMillis()
             var totalTime = startTime - System.currentTimeMillis()
-            while (depth <= maxDepth && totalTime <= timeLimitMillis) {
+            while (totalTime <= timeLimitMillis) {
                 bestMove = findBestMoveN(game, depth, player, hash, startTime, timeLimitMillis)
                 depth++
                 totalTime = System.currentTimeMillis() - startTime

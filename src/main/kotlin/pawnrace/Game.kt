@@ -203,6 +203,6 @@ fun main() {
 
     val executor = Executors.newSingleThreadExecutor()
 //    println(findBestMoveN(game, 5, Piece.W, hash = HashMap<Game, Pair<Int, Int>>()))
-    println(itDeepN(game, 5, 4500, Piece.B, hash = HashMap<Game, Pair<Int, Int>>(), executor))
+    println(itDeepN(game,  4500, Piece.B, hash = HashMap<Game, Pair<Int, Int>>(), executor))
     executor.shutdown()
 }
