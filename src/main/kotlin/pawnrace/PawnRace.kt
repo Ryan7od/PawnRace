@@ -42,28 +42,8 @@ class PawnRace {
         // you may send your move, once you have decided what it will be, with output.println(move)
         // for example: output.println("axb4")
         if (player == Piece.W) {
-//            val gap: Char = if (gaps.lowercase()[0] == gaps.lowercase()[1]) {
-//                if (gaps.lowercase()[0] == 'd') {
-//                    'C'
-//                } else {
-//                    'D'
-//                }
-//            } else {
-//                gaps[1]
-//            }
-//            var move = game.parseMove(gap + "4", player)
-// //            var move: Move? = null
-//            game = if (move != null) {
-//                game.applyMove(move)
-//            } else {
-//                move = game.randomMove(Piece.W)
-//                game.applyMove(move)
-//            }
-//            output.println(move)
-//            println(game)
-
             val executor = Executors.newSingleThreadExecutor()
-            var move = itDeepN(game, 8, 4500, player, hash, executor)
+            var move = itDeepN(game, 5, 4500, player, hash, executor)
 //            var move: Move? = null
             if (move == null) {
                 move = game.randomMove(player)
@@ -85,7 +65,7 @@ class PawnRace {
                 break
             }
             val executor = Executors.newSingleThreadExecutor()
-            var move = itDeepN(game, 8, 4500, player, hash, executor)
+            var move = itDeepN(game, 5, 4500, player, hash, executor)
 //            var move: Move? = null
             if (move == null) {
                 move = game.randomMove(player)
