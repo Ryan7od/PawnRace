@@ -113,6 +113,7 @@ fun negaScout(
 ): Int {
     val cached = hash[game]
     if (cached != null && cached.second >= depth) {
+        println("Cache evaluation ${cached.first}")
         return cached.first
     }
 
@@ -168,6 +169,7 @@ fun negaScout(
             break
         }
     }
+    hash[game] = Pair(alpha, depth)
     return alpha
 }
 
