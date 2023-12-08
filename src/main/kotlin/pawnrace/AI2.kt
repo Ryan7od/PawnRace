@@ -7,7 +7,7 @@ import kotlin.math.pow
 
 fun evaluate(game: Game, me: Piece): Int {
     val ot = me.opposite()
-    var score = 0
+    var score: Int = 0
     val posMe = game.board.positionsOf(me)
     val posOt = game.board.positionsOf(ot)
 
@@ -17,6 +17,26 @@ fun evaluate(game: Game, me: Piece): Int {
     }
     score -= 50 * posOt.sumOf {
         game.board.supported(it, ot)
+    }
+
+    // Isolated pawns
+    score -= 100 * posMe.sumOf { a ->
+        if ((a.file.file < 7 && posMe.map { it.file.file }.contains(a.file.file + 1)) ||
+            (a.file.file > 0 && posMe.map { it.file.file }.contains(a.file.file - 1))
+        ) {
+            0.toInt()
+        } else {
+            1.toInt()
+        }
+    }
+    score += 100 * posOt.sumOf { a ->
+        if ((a.file.file < 7 && posOt.map { it.file.file }.contains(a.file.file + 1)) ||
+            (a.file.file > 0 && posOt.map { it.file.file }.contains(a.file.file - 1))
+        ) {
+            0.toInt()
+        } else {
+            1.toInt()
+        }
     }
 
     // winning case
@@ -194,26 +214,30 @@ fun findBestMoveN(
     depth: Int,
     player: Piece,
     hash: HashMap<Game, Pair<Int, Int>>,
+    startTime: Long,
+    timeLimit: Long
 ): Move? {
+    var totalTime = System.currentTimeMillis() - startTime
     val moves = game.moves(player)
     println(moves)
     var bestMove: Move? = null
     var bestValue = Int.MIN_VALUE
 
     // Instant win push
-    moves.forEach {
-        if (player == Piece.W &&
-            it.from.rank.rank >= 5
-        ) {
-            return it
-        } else if (player == Piece.B &&
-            it.from.rank.rank <= 2
-        ) {
-            return it
-        }
-    }
 
     for (move in moves) {
+        if(totalTime > timeLimit) {
+            break
+        }
+        if (player == Piece.W &&
+            move.from.rank.rank >= 5
+        ) {
+            return move
+        } else if (player == Piece.B &&
+            move.from.rank.rank <= 2
+        ) {
+            return move
+        }
         val newGame = game.applyMove(move)
         val value = -negaScout(
             newGame,
@@ -229,6 +253,7 @@ fun findBestMoveN(
             bestValue = value
             bestMove = move
         }
+        totalTime = System.currentTimeMillis() - startTime
     }
     return bestMove
 }
@@ -247,9 +272,12 @@ fun itDeepN(
 
     try {
         val future = executor.submit {
-            while (depth <= maxDepth && !Thread.interrupted()) {
-                bestMove = findBestMoveN(game, depth, player, hash)
+            val startTime = System.currentTimeMillis()
+            var totalTime = startTime - System.currentTimeMillis()
+            while (depth <= maxDepth && totalTime <= timeLimitMillis) {
+                bestMove = findBestMoveN(game, depth, player, hash, startTime, timeLimitMillis)
                 depth++
+                totalTime = System.currentTimeMillis() - startTime
             }
         }
         val result = future.get(timeLimitMillis, TimeUnit.MILLISECONDS)
