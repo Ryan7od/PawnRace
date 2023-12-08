@@ -11,35 +11,7 @@ fun evaluate(game: Game, me: Piece): Int {
     val posMe = game.board.positionsOf(me)
     val posOt = game.board.positionsOf(ot)
 
-    // Pawn support
-    score += 50 * posMe.sumOf {
-        game.board.supported(it, me)
-    }
-    score -= 50 * posOt.sumOf {
-        game.board.supported(it, ot)
-    }
-
-    // Isolated pawns
-    score -= 100 * posMe.sumOf { a ->
-        if ((a.file.file < 7 && posMe.map { it.file.file }.contains(a.file.file + 1)) ||
-            (a.file.file > 0 && posMe.map { it.file.file }.contains(a.file.file - 1))
-        ) {
-            0.toInt()
-        } else {
-            1.toInt()
-        }
-    }
-    score += 100 * posOt.sumOf { a ->
-        if ((a.file.file < 7 && posOt.map { it.file.file }.contains(a.file.file + 1)) ||
-            (a.file.file > 0 && posOt.map { it.file.file }.contains(a.file.file - 1))
-        ) {
-            0.toInt()
-        } else {
-            1.toInt()
-        }
-    }
-
-    // winning case
+    // Winning case
     posMe.forEach {
         if (it.rank.rank >= 6 && me == Piece.W) {
             return Int.MAX_VALUE
@@ -57,11 +29,39 @@ fun evaluate(game: Game, me: Piece): Int {
         }
     }
 
+    // Pawn support
+    score += 50 * posMe.sumOf {
+        game.board.supported(it, me)
+    }
+    score -= 50 * posOt.sumOf {
+        game.board.supported(it, ot)
+    }
+
+    // Isolated pawns
+    score -= 200 * posMe.sumOf { a ->
+        if ((a.file.file < 7 && posMe.map { it.file.file }.contains(a.file.file + 1)) ||
+            (a.file.file > 0 && posMe.map { it.file.file }.contains(a.file.file - 1))
+        ) {
+            0.toInt()
+        } else {
+            1.toInt()
+        }
+    }
+    score += 200 * posOt.sumOf { a ->
+        if ((a.file.file < 7 && posOt.map { it.file.file }.contains(a.file.file + 1)) ||
+            (a.file.file > 0 && posOt.map { it.file.file }.contains(a.file.file - 1))
+        ) {
+            0.toInt()
+        } else {
+            1.toInt()
+        }
+    }
+
     // number of pawns
     score += 450 * (posMe.size - posOt.size)
 
     // doubled
-    score -= 30 * posMe.map { a ->
+    score -= 50 * posMe.map { a ->
         if (posMe.map { it.file.file }.contains(a.file.file)) {
             1
         } else {
@@ -69,7 +69,7 @@ fun evaluate(game: Game, me: Piece): Int {
         }
     }.sum()
 
-    score += 30 * posOt.map { a ->
+    score += 50 * posOt.map { a ->
         if (posOt.map { it.file.file }.contains(a.file.file)) {
             1
         } else {
@@ -82,7 +82,7 @@ fun evaluate(game: Game, me: Piece): Int {
     // control centre??
     // chains - 3 > 2*2
     // passed
-    score += 100 * posMe.sumOf {
+    score += 50 * posMe.sumOf {
         if (game.board.isPassedPawn(it, me)) {
             val rank = if (me == Piece.W) {
                 it.rank.rank
@@ -94,10 +94,9 @@ fun evaluate(game: Game, me: Piece): Int {
             0
         }
     }
-
-    score -= 15 * posOt.sumOf {
+    score -= 50 * posOt.sumOf {
         if (game.board.isPassedPawn(it, ot)) {
-            val rank = if (me == Piece.W) {
+            val rank = if (ot == Piece.W) {
                 it.rank.rank
             } else {
                 7 - it.rank.rank
@@ -109,7 +108,7 @@ fun evaluate(game: Game, me: Piece): Int {
     }
 
     // rank of pawns - 4 >> 3
-    score += 1 * posMe.sumOf {
+    score += 2 * posMe.sumOf {
         val rank = if (me == Piece.W) {
             it.rank.rank
         } else {
@@ -118,7 +117,7 @@ fun evaluate(game: Game, me: Piece): Int {
         2.0.pow(rank).toInt()
     }
 
-    score -= 1 * posOt.sumOf {
+    score -= 2 * posOt.sumOf {
         val rank = if (me == Piece.W) {
             it.rank.rank
         } else {
@@ -215,7 +214,7 @@ fun findBestMoveN(
     player: Piece,
     hash: HashMap<Game, Pair<Int, Int>>,
     startTime: Long,
-    timeLimit: Long
+    timeLimit: Long,
 ): Move? {
     var totalTime = System.currentTimeMillis() - startTime
     val moves = game.moves(player)
@@ -226,7 +225,7 @@ fun findBestMoveN(
     // Instant win push
 
     for (move in moves) {
-        if(totalTime > timeLimit) {
+        if (totalTime > timeLimit) {
             break
         }
         if (player == Piece.W &&

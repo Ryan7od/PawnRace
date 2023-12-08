@@ -43,7 +43,7 @@ class PawnRace {
         // for example: output.println("axb4")
         if (player == Piece.W) {
             val executor = Executors.newSingleThreadExecutor()
-            var move = itDeepN(game, 4500, player, hash, executor)
+            var move = itDeepN(game, 4700, player, hash, executor)
 //            var move: Move? = null
             if (move == null) {
                 move = game.randomMove(player)
