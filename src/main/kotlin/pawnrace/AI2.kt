@@ -195,6 +195,7 @@ fun findBestMoveN(
     hash: HashMap<Game, Pair<Int, Int>>,
 ): Move? {
     val moves = game.moves(player)
+    println(moves)
     var bestMove: Move? = null
     var bestValue = Int.MIN_VALUE
 
@@ -232,15 +233,13 @@ fun itDeepN(
 
     try {
         val future = executor.submit {
-            while (true) {
+            while (depth <= maxDepth) {
                 bestMove = findBestMoveN(game, depth, player, hash)
                 depth++
             }
         }
         future[timeLimitMillis, TimeUnit.MILLISECONDS]
     } catch (_: Exception) {
-    } finally {
-        executor.shutdown()
     }
 
     return bestMove
