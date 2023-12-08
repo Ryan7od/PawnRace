@@ -13,17 +13,19 @@ fun evaluate(game: Game, me: Piece): Int {
 
     // winning case
     posMe.forEach {
-        if (it.rank.rank >= 6) {
-            return when (me) {
-                Piece.W -> Int.MAX_VALUE
-                else -> Int.MIN_VALUE
-            }
+        if (it.rank.rank >= 6 && me == Piece.W) {
+            return Int.MAX_VALUE
         }
-        if (it.rank.rank <= 1) {
-            return when (me) {
-                Piece.B -> Int.MAX_VALUE
-                else -> Int.MIN_VALUE
-            }
+        if (it.rank.rank <= 1 && me == Piece.B) {
+            return Int.MAX_VALUE
+        }
+    }
+    posOt.forEach {
+        if (it.rank.rank >= 6 && me == Piece.B) {
+            return Int.MIN_VALUE
+        }
+        if (it.rank.rank <= 1 && me == Piece.W) {
+            return Int.MIN_VALUE
         }
     }
 
