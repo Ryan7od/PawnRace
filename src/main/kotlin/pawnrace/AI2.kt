@@ -122,7 +122,7 @@ fun negaScout(
         }
     }
 
-    var moves = game.moves(player)
+    val moves = game.moves(player)
     if (depth <= 0) {
         var value = Int.MIN_VALUE
         // Capture Quiescence Search
@@ -144,21 +144,13 @@ fun negaScout(
         return maxOf(value, evaluate(game, me))
     }
 
-    // IID
-    if (depth > 3) {
-        val m = findBestMoveN(game, 3, player, hash)
-        if (m != null) {
-            moves = listOf(m).plus(moves)
-        }
-    }
-
     var alpha = a
     var score: Int
 
-    val firstMove = moves.firstOrNull()
-    score = if (firstMove != null) {
-        -negaScout(
-            game.applyMove(firstMove),
+    for (move in moves) {
+        val newGame = game.applyMove(move)
+        score = -negaScout(
+            newGame,
             depth - 1,
             -beta,
             -alpha,
@@ -166,39 +158,9 @@ fun negaScout(
             me,
             hash,
         )
-    } else {
-        evaluate(game, me)
-    }
-
-    alpha = maxOf(alpha, score)
-
-    for (move in moves.drop(0)) {
-        val newGame = game.applyMove(move)
-        score = -negaScout(
-            newGame,
-            depth - 1,
-            -alpha - 1,
-            -alpha,
-            player.opposite(),
-            me,
-            hash,
-        )
-
-        if (score in alpha..beta) {
-            score = -negaScout(
-                newGame,
-                depth - 1,
-                -beta,
-                -score,
-                player.opposite(),
-                me,
-                hash,
-            )
-
-            alpha = maxOf(alpha, score)
-            if (alpha >= beta) {
-                break
-            }
+        alpha = maxOf(alpha, score)
+        if (alpha >= beta) {
+            break
         }
     }
     return alpha
