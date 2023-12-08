@@ -1,8 +1,6 @@
 package pawnrace
 
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
 fun minimaxP(
@@ -113,7 +111,7 @@ fun itDeepM(game: Game, maxDepth: Int, timeLimitMillis: Long, player: Piece): Mo
         elapsedTime += timeTaken
 
         val remainingTime = timeLimitMillis - elapsedTime
-        val estimatedTimeForNextDepth = timeTaken*4
+        val estimatedTimeForNextDepth = timeTaken * 4
         if (remainingTime < estimatedTimeForNextDepth) {
             break
         }

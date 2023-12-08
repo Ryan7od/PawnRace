@@ -65,7 +65,7 @@ class PawnRace {
                 break
             }
             val executor = Executors.newSingleThreadExecutor()
-            var move = itDeepN(game,  4500, player, hash, executor)
+            var move = itDeepN(game, 4500, player, hash, executor)
 //            var move: Move? = null
             if (move == null) {
                 move = game.randomMove(player)
