@@ -4,6 +4,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.util.concurrent.Executors
+import kotlin.random.Random
 
 // You should not add any more member values or member functions to this class
 // (or change its name!). The autorunner will load it in via reflection, and it
@@ -19,7 +20,8 @@ class PawnRace {
         val player: Piece = parseColour(colour)
         val opp = player.opposite()
         if (player == Piece.B) {
-            output.println("Ah")
+            val gapsList = listOf("Ad", "Ae", "Af", "Ag", "Hb", "Hc", "Hd", "He")
+            output.println(gapsList[Random.nextInt(0, gapsList.size)])
         }
 
         // Regardless of your colour, you should now receive the gaps verified by the autorunner
@@ -40,24 +42,35 @@ class PawnRace {
         // you may send your move, once you have decided what it will be, with output.println(move)
         // for example: output.println("axb4")
         if (player == Piece.W) {
-            val gap: Char = if (gaps.lowercase()[0] == gaps.lowercase()[1]) {
-                if (gaps.lowercase()[0] == 'd') {
-                    'C'
-                } else {
-                    'D'
-                }
-            } else {
-                gaps[1]
-            }
-            var move = game.parseMove(gap + "4", player)
+//            val gap: Char = if (gaps.lowercase()[0] == gaps.lowercase()[1]) {
+//                if (gaps.lowercase()[0] == 'd') {
+//                    'C'
+//                } else {
+//                    'D'
+//                }
+//            } else {
+//                gaps[1]
+//            }
+//            var move = game.parseMove(gap + "4", player)
+// //            var move: Move? = null
+//            game = if (move != null) {
+//                game.applyMove(move)
+//            } else {
+//                move = game.randomMove(Piece.W)
+//                game.applyMove(move)
+//            }
+//            output.println(move)
+//            println(game)
+
+            val executor = Executors.newSingleThreadExecutor()
+            var move = itDeepN(game, 8, 4500, player, hash, executor)
 //            var move: Move? = null
-            game = if (move != null) {
-                game.applyMove(move)
-            } else {
-                move = game.randomMove(Piece.W)
-                game.applyMove(move)
+            if (move == null) {
+                move = game.randomMove(player)
             }
             output.println(move)
+            executor.shutdown()
+            game = game.applyMove(move)
             println(game)
         }
 
@@ -72,7 +85,7 @@ class PawnRace {
                 break
             }
             val executor = Executors.newSingleThreadExecutor()
-            var move = itDeepN(game, 3, 4500, player, hash, executor)
+            var move = itDeepN(game, 8, 4500, player, hash, executor)
 //            var move: Move? = null
             if (move == null) {
                 move = game.randomMove(player)

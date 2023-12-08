@@ -11,6 +11,14 @@ fun evaluate(game: Game, me: Piece): Int {
     val posMe = game.board.positionsOf(me)
     val posOt = game.board.positionsOf(ot)
 
+    // Pawn support
+    score += 20 * posMe.sumOf {
+        game.board.supported(it, me)
+    }
+    score -= 20 * posOt.sumOf {
+        game.board.supported(it, me)
+    }
+
     // winning case
     posMe.forEach {
         if (it.rank.rank >= 6 && me == Piece.W) {
@@ -54,7 +62,7 @@ fun evaluate(game: Game, me: Piece): Int {
     // control centre??
     // chains - 3 > 2*2
     // passed
-    score += 15 * posMe.sumOf {
+    score += 100 * posMe.sumOf {
         if (game.board.isPassedPawn(it, me)) {
             val rank = if (me == Piece.W) {
                 it.rank.rank
@@ -102,6 +110,18 @@ fun evaluate(game: Game, me: Piece): Int {
     return score
 }
 
+fun order(list: List<Move>): List<Move> {
+    val listOut: MutableList<Move> = mutableListOf()
+    list.forEach {
+        val move = it
+        if (move.toString().length != 2) {
+            listOut.add(it)
+        }
+    }
+    listOut += list.minus(listOut.toSet())
+    return listOut.toList()
+}
+
 fun negaScout(
     game: Game,
     depth: Int,
@@ -122,11 +142,11 @@ fun negaScout(
         return when (game.winner()) {
             me -> Int.MAX_VALUE
             me.opposite() -> Int.MIN_VALUE
-            else -> 1
+            else -> -1
         }
     }
 
-    val moves = game.moves(player)
+    val moves = order(game.moves(player))
     if (depth <= 0) {
         var value = Int.MIN_VALUE
         // Capture Quiescence Search

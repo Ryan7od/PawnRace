@@ -221,4 +221,19 @@ class Board {
         }
         return result
     }
+
+    fun supported(it: Position, player: Piece): Int {
+        val forward = when (player) {
+            Piece.W -> 1
+            else -> -1
+        }
+        var out = 0
+        if (pieceAt(it.move(-forward, -1)) == player) {
+            out++
+        }
+        if (pieceAt(it.move(-forward, 1)) == player) {
+            out++
+        }
+        return out
+    }
 }
