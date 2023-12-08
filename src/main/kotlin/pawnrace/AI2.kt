@@ -209,7 +209,7 @@ fun findBestMoveN(
             player,
             hash,
         )
-
+        println("$move - $value")
         if (value > bestValue) {
             bestValue = value
             bestMove = move

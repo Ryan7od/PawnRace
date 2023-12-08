@@ -32,7 +32,7 @@ class PawnRace {
             File(gaps.lowercase()[0].code - 'a'.code),
             File(gaps.lowercase()[1].code - 'a'.code),
         )
-        var game = Game(board, player)
+        var game = Game(board, Piece.W)
 
         val hash = HashMap<Game, Pair<Int, Int>>()
 
