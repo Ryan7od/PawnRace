@@ -38,7 +38,7 @@ fun evaluate(game: Game, me: Piece): Int {
     }
 
     // Isolated pawns
-    score -= 200 * posMe.sumOf { a ->
+    score += 200 * posMe.sumOf { a ->
         if ((a.file.file < 7 && posMe.map { it.file.file }.contains(a.file.file + 1)) ||
             (a.file.file > 0 && posMe.map { it.file.file }.contains(a.file.file - 1))
         ) {
@@ -47,7 +47,7 @@ fun evaluate(game: Game, me: Piece): Int {
             1.toInt()
         }
     }
-    score += 200 * posOt.sumOf { a ->
+    score -= 200 * posOt.sumOf { a ->
         if ((a.file.file < 7 && posOt.map { it.file.file }.contains(a.file.file + 1)) ||
             (a.file.file > 0 && posOt.map { it.file.file }.contains(a.file.file - 1))
         ) {
