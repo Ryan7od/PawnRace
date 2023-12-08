@@ -11,8 +11,24 @@ fun evaluate(game: Game, me: Piece): Int {
     val posMe = game.board.positionsOf(me)
     val posOt = game.board.positionsOf(ot)
 
+    // winning case
+    posMe.forEach {
+        if (it.rank.rank >= 5) {
+            return when (me) {
+                Piece.W -> Int.MAX_VALUE
+                else -> Int.MIN_VALUE
+            }
+        }
+        if (it.rank.rank <= 2) {
+            return when (me) {
+                Piece.B -> Int.MAX_VALUE
+                else -> Int.MIN_VALUE
+            }
+        }
+    }
+
     // number of pawns
-    score += 200 * (posMe.size - posOt.size)
+    score += 400 * (posMe.size - posOt.size)
 
     // doubled
     score -= 30 * posMe.map { a ->
@@ -199,6 +215,19 @@ fun findBestMoveN(
     var bestMove: Move? = null
     var bestValue = Int.MIN_VALUE
 
+    // Instant win push
+    moves.forEach {
+        if (player == Piece.W &&
+            it.from.rank.rank >= 5
+        ) {
+            return it
+        } else if (player == Piece.B &&
+            it.from.rank.rank <= 2
+        ) {
+            return it
+        }
+    }
+
     for (move in moves) {
         val newGame = game.applyMove(move)
         val value = -negaScout(
@@ -243,7 +272,6 @@ fun itDeepN(
         future.cancel(true)
         executor.shutdownNow()
     } catch (_: Exception) {
-
     }
 
     return bestMove

@@ -19,7 +19,7 @@ class PawnRace {
         val player: Piece = parseColour(colour)
         val opp = player.opposite()
         if (player == Piece.B) {
-            output.println("AH")
+            output.println("Ah")
         }
 
         // Regardless of your colour, you should now receive the gaps verified by the autorunner
@@ -40,7 +40,16 @@ class PawnRace {
         // you may send your move, once you have decided what it will be, with output.println(move)
         // for example: output.println("axb4")
         if (player == Piece.W) {
-            var move = game.parseMove(gaps[1] + "4", player)
+            val gap: Char = if (gaps.lowercase()[0] == gaps.lowercase()[1]) {
+                if (gaps.lowercase()[0] == 'd') {
+                    'C'
+                } else {
+                    'D'
+                }
+            } else {
+                gaps[1]
+            }
+            var move = game.parseMove(gap + "4", player)
 //            var move: Move? = null
             game = if (move != null) {
                 game.applyMove(move)
@@ -63,7 +72,7 @@ class PawnRace {
                 break
             }
             val executor = Executors.newSingleThreadExecutor()
-            var move = itDeepN(game, 10, 4500, player, hash, executor)
+            var move = itDeepN(game, 3, 4500, player, hash, executor)
 //            var move: Move? = null
             if (move == null) {
                 move = game.randomMove(player)
