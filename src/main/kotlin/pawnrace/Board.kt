@@ -228,10 +228,14 @@ class Board {
             else -> -1
         }
         var out = 0
-        if (pieceAt(it.move(-forward, -1)) == player) {
+        if (it.file.file in 1..7 &&
+            pieceAt(it.move(-forward, -1)) == player
+        ) {
             out++
         }
-        if (pieceAt(it.move(-forward, 1)) == player) {
+        if (it.file.file in 0..6 &&
+            pieceAt(it.move(-forward, 1)) == player
+        ) {
             out++
         }
         return out
