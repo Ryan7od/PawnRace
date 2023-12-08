@@ -229,17 +229,21 @@ fun itDeepN(
     executor: ExecutorService,
 ): Move? {
     var bestMove: Move? = null
-    var depth = 3
+    var depth = 2
 
     try {
         val future = executor.submit {
-            while (depth <= maxDepth) {
+            while (depth <= maxDepth && !Thread.interrupted()) {
                 bestMove = findBestMoveN(game, depth, player, hash)
                 depth++
             }
         }
-        future[timeLimitMillis, TimeUnit.MILLISECONDS]
+        val result = future.get(timeLimitMillis, TimeUnit.MILLISECONDS)
+
+        future.cancel(true)
+        executor.shutdownNow()
     } catch (_: Exception) {
+
     }
 
     return bestMove
