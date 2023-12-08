@@ -147,7 +147,7 @@ class Game(var board: Board, var player: Piece, val moves: MutableStack = Mutabl
                         )
                 ) {
                     pos = it
-                    type = if (board.pieceAt(pos) == piece.opposite()) {
+                    type = if (board.pieceAt(pos2) == piece.opposite()) {
                         MoveType.CAPTURE
                     } else {
                         MoveType.EN_PASSANT
