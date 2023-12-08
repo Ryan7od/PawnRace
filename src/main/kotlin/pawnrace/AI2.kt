@@ -115,6 +115,7 @@ fun negaScout(
     }
 
     if (game.over()) {
+        println("Gameover evaluation ${game.winner()}")
         return when (game.winner()) {
             me -> Int.MAX_VALUE
             me.opposite() -> Int.MIN_VALUE
@@ -128,6 +129,7 @@ fun negaScout(
         // Capture Quiescence Search
         moves.filter { it.type == MoveType.CAPTURE }
             .forEach {
+                println("Capture search")
                 value = maxOf(
                     value,
                     -negaScout(
@@ -141,6 +143,7 @@ fun negaScout(
                     ),
                 )
             }
+        println("Depth 0 evaluation ${maxOf(value, evaluate(game, me))}")
         return maxOf(value, evaluate(game, me))
     }
 
